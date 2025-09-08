@@ -12,5 +12,5 @@ A simple desktop app (built with Python & Tkinter) for quickly creating **CRediT
 - Generate a formatted contribution statement, e.g.:
 
 - CRediT authorship contribution statement
-Xiao Shang: Conceptualization, Methodology, Writing – original draft, Writing – review & editing. Zhiying Liu: Methodology, Writing – review & editing. Jiahui Zhang: Methodology, Writing – review & editing. Tianyi Lyu: Methodology, Writing – review & editing. Yu Zou: Conceptualization, Supervision, Writing – review & editing.
+- Xiao Shang: Conceptualization, Methodology, Writing – original draft, Writing – review & editing. Zhiying Liu: Methodology, Writing – review & editing. Jiahui Zhang: Methodology, Writing – review & editing. Tianyi Lyu: Methodology, Writing – review & editing. Yu Zou: Conceptualization, Supervision, Writing – review & editing.
 
