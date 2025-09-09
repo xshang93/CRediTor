@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CRediT Statement Builder</title>
+<style>
+  :root {
+    --bg: #0b1220;
+    --card: #101827;
+    --muted: #90a4b4;
+    --text: #e6edf3;
+    --accent: #4f9cf9;
+    --accent-2: #22c55e;
+    --border: #223045;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+    background: var(--bg); color: var(--text);
+  }
+  .wrap {
+    max-width: 1200px; margin: 24px auto; padding: 0 16px;
+  }
+  .tabs {
+    display: flex; gap: 8px; margin-bottom: 16px;
+  }
+  .tab {
+    padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px;
+    background: #0e1a2b; color: var(--text); cursor: pointer; user-select: none;
+  }
+  .tab.active { background: var(--card); border-color: var(--accent); }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px;
+  }
+  .grid {
+    display: grid; gap: 14px;
+  }
+  /* 3 columns on wide screens; stack on narrow */
+  @media (min-width: 1100px) {
+    .grid-cols-3 { grid-template-columns: 280px 1fr 1fr; }
+  }
+  @media (max-width: 1099px) {
+    .grid-cols-3 { grid-template-columns: 1fr; }
+  }
+  h2 { margin: 6px 0 10px; font-size: 16px; font-weight: 700; }
+  label { color: var(--muted); font-size: 12px; }
+  input[type="text"]{
+    width: 100%; padding: 10px; border-radius: 10px; border: 1px solid var(--border);
+    background: #0d1625; color: var(--text);
+  }
+  .btn {
+    border: 1px solid var(--border); background: #0f1a2b; color: var(--text);
+    padding: 8px 10px; border-radius: 10px; cursor: pointer;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn.accent { background: var(--accent); border-color: var(--accent); color: #061225; }
+  .btn.good { background: var(--accent-2); border-color: var(--accent-2); color: #061225; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .list {
+    width: 100%; height: 280px; overflow: auto; border: 1px solid var(--border); border-radius: 10px;
+    background: #0d1625; padding: 6px;
+  }
+  .list .item {
+    padding: 8px; border-radius: 8px; cursor: pointer;
+  }
+  .list .item:hover { background: #14223a; }
+  .list .item.active { background: #1a2c4c; border: 1px solid var(--accent); }
+  .muted { color: var(--muted); }
+  .desc {
+    min-height: 180px; max-height: 320px; overflow: auto; border: 1px solid var(--border);
+    border-radius: 10px; background: #0d1625; padding: 10px; white-space: pre-wrap;
+  }
+  .output {
+    width: 100%; min-height: 140px; max-height: 240px; overflow: auto; border: 1px solid var(--border);
+    border-radius: 10px; background: #0d1625; padding: 10px; white-space: pre-wrap;
+  }
+  .spacer { height: 6px; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .kbd {
+    padding: 2px 6px; border-radius: 6px; border: 1px solid var(--border); background: #0e1829; color: var(--muted);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+	<h1 style="margin:0 0 16px; font-size:24px; font-weight:700;">
+		CRediTor – <span style="font-weight:400;">A tool for CRediT Statement generation</span>
+	</h1>
+	<div class="tabs">
+	<div class="tab active" data-tab="builder">Builder</div>
+	<div class="tab" data-tab="about">About</div>
+	<a href="/" class="btn" style="margin-left:auto;">⟵ Back to My Main Page</a>
+	</div>
+
+  <!-- BUILDER -->
+  <section id="builder" class="card">
+    <div class="grid grid-cols-3">
+      <!-- Authors -->
+      <div>
+        <h2>Authors</h2>
+        <div id="authorList" class="list" aria-label="Authors list"></div>
+        <div class="spacer"></div>
+        <div class="row">
+          <button class="btn" id="addAuthorBtn">Add author</button>
+          <button class="btn" id="renameAuthorBtn">Rename</button>
+          <button class="btn" id="removeAuthorBtn">Remove</button>
+          <button class="btn" id="clearAllBtn">Clear All</button>
+        </div>
+      </div>
+
+      <!-- Roles -->
+      <div>
+        <h2>Assign CRediT Roles</h2>
+        <label for="roleFilter">Filter roles</label>
+        <input id="roleFilter" type="text" placeholder="Type to filter roles…" />
+        <div class="spacer"></div>
+        <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div>
+            <label>Roles for selected author</label>
+            <div id="assignedList" class="list" aria-label="Assigned roles"></div>
+          </div>
+          <div>
+            <label>All roles (double-click to add)</label>
+            <div id="allRolesList" class="list" aria-label="All roles"></div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+        <div class="row">
+          <button class="btn" id="removeRoleBtn">Remove selected role</button>
+          <button class="btn" id="addFromAllBtn">Add selected role from right list</button>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div>
+        <h2>Role description</h2>
+        <div class="desc" id="roleDesc"></div>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+    <div class="row">
+      <div class="output" id="output" aria-label="Generated statement"></div>
+    </div>
+    <div class="spacer"></div>
+    <div class="row">
+      <button class="btn accent" id="generateBtn">Generate</button>
+      <button class="btn" id="copyBtn">Copy (text)</button>
+      <button class="btn good" id="downloadBtn">Download .txt</button>
+      <span class="muted">Tip: Double-click a role in “All roles” to add to the selected author.</span>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" class="card" style="display:none;">
+    <h2 style="font-size:20px; margin-top:0;">CRediT Statement Builder</h2>
+    <p><strong>Version:</strong> 1.0.0</p>
+    <p><strong>Author:</strong> Xiao Shang</p>
+    <p><strong>Email:</strong> <a href="mailto:xiao.shang@mail.utoronto.ca">xiao.shang@mail.utoronto.ca</a></p>
+    <p class="muted">
+      CRediTor helps you quickly create CRediT authorship contribution statements:
+      add authors, assign roles, view official role descriptions, and generate a clean statement
+      beginning with the standard title line.
+    </p>
+    <p class="muted">
+      Keyboard: <span class="kbd">Enter</span> to confirm dialogs, <span class="kbd">Esc</span> to cancel.
+    </p>
+  </section>
+</div>
+
+<script>
+/* ---------- Data ---------- */
+const VERSION = "1.0.0";
+const ROLES = [
+  "Conceptualization","Data curation","Formal analysis","Funding acquisition","Investigation",
+  "Methodology","Project administration","Resources","Software","Supervision","Validation",
+  "Visualization","Writing – original draft","Writing – review & editing"
+];
+const ROLE_DESCRIPTIONS = {
+  "Conceptualization": "Ideas; formulation or evolution of overarching research goals and aims.",
+  "Data curation": "Management activities to annotate (metadata), scrub, and maintain data for initial use and re-use.",
+  "Formal analysis": "Use of statistical, mathematical, computational, or other formal techniques to analyze/synthesize data.",
+  "Funding acquisition": "Acquisition of financial support for the project leading to this publication.",
+  "Investigation": "Conducting research and investigation processes; performing experiments or data/evidence collection.",
+  "Methodology": "Development or design of methodology; creation of models.",
+  "Project administration": "Management and coordination responsibility for planning and execution of the research activity.",
+  "Resources": "Provision of study materials, reagents, instrumentation, computing resources, or other analysis tools.",
+  "Software": "Programming/software development; code implementation; algorithm design; testing of code components.",
+  "Supervision": "Oversight and leadership for planning and execution; mentorship external to the core team.",
+  "Validation": "Verification/replication of results/experiments and other research outputs.",
+  "Visualization": "Preparation or presentation of the published work's visualization/data presentation.",
+  "Writing – original draft": "Preparation and writing of the initial draft (including substantive translation).",
+  "Writing – review & editing": "Critical review, commentary or revision at any stage, by original research group members."
+};
+// seed example authors and roles
+const EXAMPLES = ["Jolie the Dachshund","Author 2"];
+const PRESET = {
+  "Jolie the Dachshund": ["Conceptualization","Methodology","Software"],
+  "Author 2": ["Data curation","Writing – original draft"],
+};
+
+/* ---------- State ---------- */
+let authors = new Map();         // name -> Set(roles)
+let selectedAuthor = null;
+let selectedAssignedRole = null;
+let selectedAllRole = null;
+
+/* ---------- Helpers ---------- */
+function el(id){ return document.getElementById(id); }
+function renderAuthors() {
+  const box = el("authorList");
+  box.innerHTML = "";
+  for (const name of authors.keys()) {
+    const div = document.createElement("div");
+    div.className = "item" + (name === selectedAuthor ? " active": "");
+    div.textContent = name;
+    div.onclick = () => { selectedAuthor = name; selectedAssignedRole = null; render(); };
+    box.appendChild(div);
+  }
+}
+function renderAssigned() {
+  const box = el("assignedList");
+  box.innerHTML = "";
+  if (!selectedAuthor) return;
+  const roles = Array.from(authors.get(selectedAuthor) || []).sort();
+  for (const r of roles) {
+    const div = document.createElement("div");
+    div.className = "item" + (r === selectedAssignedRole ? " active": "");
+    div.textContent = r;
+    div.onclick = () => { selectedAssignedRole = r; selectedAllRole = null; renderRoleDesc(r); renderListsOnly(); };
+    box.appendChild(div);
+  }
+}
+function renderAllRoles() {
+  const filter = el("roleFilter").value.trim().toLowerCase();
+  const box = el("allRolesList");
+  box.innerHTML = "";
+  const filtered = ROLES.filter(r => r.toLowerCase().includes(filter));
+  for (const r of filtered) {
+    const div = document.createElement("div");
+    div.className = "item" + (r === selectedAllRole ? " active": "");
+    div.textContent = r;
+    div.onclick = () => { selectedAllRole = r; selectedAssignedRole = null; renderRoleDesc(r); renderListsOnly(); };
+    div.ondblclick = () => addRoleFromAll(r);
+    box.appendChild(div);
+  }
+  // show first description if nothing selected
+  if (!selectedAllRole && !selectedAssignedRole && filtered.length) {
+    renderRoleDesc(filtered[0]);
+  }
+}
+function renderRoleDesc(role) {
+  el("roleDesc").textContent = role + "\n\n" + (ROLE_DESCRIPTIONS[role] || "No description available.");
+}
+function generateStatement() {
+  const lines = ["CRediT authorship contribution statement"];
+  for (const name of authors.keys()) {
+    const roles = Array.from(authors.get(name) || []).sort();
+    if (roles.length) lines.push(`${name}: ${roles.join(", ")}.`);
+  }
+  el("output").textContent = lines.join("\n");
+}
+function copyOutput() {
+  const text = el("output").textContent.trim();
+  if (!text) { generateStatement(); }
+  navigator.clipboard.writeText(el("output").textContent).then(() => {
+    alert("Copied to clipboard.");
+  }).catch(() => alert("Copy failed"));
+}
+function downloadTxt() {
+  const text = el("output").textContent.trim() || (() => { generateStatement(); return el("output").textContent; })();
+  const blob = new Blob([text], {type: "text/plain;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "CRediT_statement.txt";
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* Only re-render lists when selection changes (minor perf) */
+function renderListsOnly(){
+  renderAuthors(); renderAssigned(); renderAllRoles();
+}
+
+/* Full render */
+function render(){
+  renderAuthors(); renderAssigned(); renderAllRoles(); generateStatement();
+}
+
+/* ---------- Mutations ---------- */
+function addAuthor() {
+  const name = prompt("Full name:");
+  if (!name) return;
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  if (authors.has(trimmed)) { alert(`'${trimmed}' already exists.`); return; }
+  authors.set(trimmed, new Set());
+  selectedAuthor = trimmed;
+  render();
+}
+function renameAuthor() {
+  if (!selectedAuthor) { alert("Select an author to rename."); return; }
+  const newName = prompt("New name:", selectedAuthor);
+  if (!newName) return;
+  const trimmed = newName.trim();
+  if (!trimmed) return;
+  if (trimmed !== selectedAuthor && authors.has(trimmed)) { alert(`'${trimmed}' already exists.`); return; }
+  const roles = authors.get(selectedAuthor);
+  authors.delete(selectedAuthor);
+  authors.set(trimmed, roles);
+  selectedAuthor = trimmed;
+  render();
+}
+function removeAuthor() {
+  if (!selectedAuthor) { alert("Select an author to remove."); return; }
+  if (!confirm(`Remove '${selectedAuthor}'?`)) return;
+  authors.delete(selectedAuthor);
+  selectedAuthor = null; selectedAssignedRole = null;
+  render();
+}
+function clearAllAuthors() {
+  if (!confirm("Remove all authors and their roles?")) return;
+  authors.clear(); selectedAuthor = null; selectedAssignedRole = null; selectedAllRole = null;
+  render();
+}
+function addRoleFromAll(role) {
+  if (!selectedAuthor) { alert("Select an author first."); return; }
+  const set = authors.get(selectedAuthor);
+  if (set.has(role)) { alert(`'${role}' is already assigned to ${selectedAuthor}.`); return; }
+  set.add(role);
+  selectedAssignedRole = role;
+  render();
+}
+function addSelectedFromRight() {
+  if (!selectedAuthor) { alert("Select an author first."); return; }
+  if (!selectedAllRole) { alert("Select a role from the right list."); return; }
+  addRoleFromAll(selectedAllRole);
+}
+function removeSelectedRole() {
+  if (!selectedAuthor) { alert("Select an author first."); return; }
+  if (!selectedAssignedRole) { alert("Select a role to remove."); return; }
+  const set = authors.get(selectedAuthor);
+  set.delete(selectedAssignedRole);
+  selectedAssignedRole = null;
+  render();
+}
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll(".tab").forEach(t => {
+  t.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+    t.classList.add("active");
+    const target = t.dataset.tab;
+    document.getElementById("builder").style.display = (target === "builder") ? "" : "none";
+    document.getElementById("about").style.display   = (target === "about") ? "" : "none";
+  });
+});
+
+/* ---------- Wire up UI ---------- */
+el("addAuthorBtn").onclick = addAuthor;
+el("renameAuthorBtn").onclick = renameAuthor;
+el("removeAuthorBtn").onclick = removeAuthor;
+el("clearAllBtn").onclick = clearAllAuthors;
+
+el("removeRoleBtn").onclick = removeSelectedRole;
+el("addFromAllBtn").onclick = addSelectedFromRight;
+el("roleFilter").oninput = renderAllRoles;
+
+el("generateBtn").onclick = generateStatement;
+el("copyBtn").onclick = copyOutput;
+el("downloadBtn").onclick = downloadTxt;
+
+/* ---------- Init with examples ---------- */
+(function init(){
+  // preserve insertion order like the desktop app
+  for (const name of EXAMPLES) authors.set(name, new Set());
+  for (const [name, roles] of Object.entries(PRESET)) {
+    for (const r of roles) authors.get(name).add(r);
+  }
+  // default select first author
+  selectedAuthor = EXAMPLES[0];
+  render();
+})();
+</script>
+</body>
+</html>

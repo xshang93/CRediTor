@@ -15,6 +15,7 @@ A simple desktop app (built with Python & Tkinter) for quickly creating **CRediT
   Xiao Shang: Conceptualization, Methodology, Writing – original draft, Writing – review & editing. Zhiying Liu: Methodology, Writing – review & editing. Jiahui Zhang: Methodology, Writing – review & editing. Tianyi Lyu: Methodology, Writing – review & editing. Yu Zou: Conceptualization, Supervision, Writing – review & editing.
 
 # How to use
+- Web app (The easiest): Open the link and start using! https://xshang93.github.io/creditor/
 - For windows:
 Simplily download the CRediTor.exe file in /executable and you are good to go.
 - For Linux: download the CRediTor.py file in /package. Under the folder run ```python CRediTor.py``` from yoru terminal.
